@@ -1,47 +1,44 @@
 name: Wiz CLI Combined Scan
 
 on:
-push:
-branches: [main]
-pull_request:
+  push:
+    branches: [main]
+  pull_request:
 
 jobs:
-wiz-cli-scan:
-name: Wiz CLI Container Scan
-runs-on: ubuntu-latest
+  wiz-cli-scan:
+    name: Wiz CLI Container Scan
+    runs-on: ubuntu-latest
 
-```
-env:
-  SCAN_PATH: "."
-  TAG: "demo-image:latest"
-  POLICY: "Default vulnerabilities policy"
-
-defaults:
-  run:
-    shell: bash
-
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v3
-
-  - name: Build Docker image
-    run: |
-      cd $SCAN_PATH
-      docker build -t $TAG .
-
-  - name: Download Wiz CLI
-    run: |
-      curl -o wizcli https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64
-      chmod +x wizcli
-
-  - name: Scan container image
     env:
-      WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
-      WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
-    run: |
-      ./wizcli scan container-image $TAG --policies "$POLICY"
+      SCAN_PATH: "."
+      TAG: "demo-image:latest"
+      POLICY: "Default vulnerabilities policy"
 
-  - name: Fetch digest for Graph enrichment
-    run: ./wizcli tag $TAG
-```
+    defaults:
+      run:
+        shell: bash
 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: |
+          cd $SCAN_PATH
+          docker build -t $TAG .
+
+      - name: Download Wiz CLI
+        run: |
+          curl -o wizcli https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64
+          chmod +x wizcli
+
+      - name: Scan container image
+        env:
+          WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
+          WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
+        run: |
+          ./wizcli scan container-image $TAG --policies "$POLICY"
+
+      - name: Fetch digest for Graph enrichment
+        run: ./wizcli tag $TAG
