@@ -1,0 +1,28 @@
+name: Wiz CLI Container Scan Demo
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  container-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: docker build -t demo-image:latest .
+
+      - name: Download Wiz CLI
+        run: |
+          curl -o wizcli https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64
+          chmod +x wizcli
+
+      - name: Scan container image
+        env:
+          WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
+          WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
+        run: |
+          ./wizcli scan image demo-image:latest
